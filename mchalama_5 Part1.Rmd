@@ -1,0 +1,62 @@
+---
+title: "Assignment 5 Part1"
+author: "ManojKumar Chalamala"
+date: "10/6/2019"
+output: html_document
+---
+```{r}
+library(lpSolveAPI)
+
+
+
+## Activity-On-Arc-Projec-Network Problem
+Network <- make.lp(9, 12)
+
+## Set objective function
+set.objfn(Network, c(5,3,3,2,4,4,1,2,6,5,4,7)) 
+
+## set values for the rows
+set.row(Network, 1, c(1, 1), indices = c(1, 2) )                  # node 1
+set.row(Network, 2, c(1, -1 ,-1), indices = c(1,4,5))             # node 2
+set.row(Network, 3,c(1,-1), indices = c(2, 3) )                   # node 3
+set.row(Network, 4, c(1, 1, -1, -1), indices = c(4, 3, 9, 8))     # node 4
+set.row(Network, 5, c(1, -1 ,-1), indices = c(5,6,7))             # node 5 
+set.row(Network, 6,c(1,-1), indices = c(7,10) )                   # node 6
+set.row(Network, 7, c(1, 1 ,-1), indices = c(6,9,11))             # node 7
+set.row(Network, 8,c(1,-1), indices = c(8,12) )                   # node 8
+set.row(Network, 9, c(1, 1, 1), indices = c(10,11,12))            # node 9
+
+
+## set Right hand side
+rhs <- c(1, rep(0, 7), 1)
+set.rhs(Network, rhs)
+
+## set constraints type
+set.constr.type(Network, rep("="), 9)
+
+# finally, name the decision variables (column) and constraints (rows)
+lp.colnames <- c("X12","X13","X35","X25","X24","X47","X46","X58","X57","X69","X79","X89") 
+lp.rownames <- c("node1", "node2", "node3", "node4", "node5", "node6","node7", "node8", "node9")
+dimnames(Network) <- list(lp.rownames, lp.colnames)
+
+#Set Max Condition
+lp.control(Network, sense="max")
+
+## Now set all variables type to be binary
+set.type(Network, 1:12, "binary")
+
+## Now solve the IP problem
+solve(Network)
+# --> A return value of 0 indicates that the model was successfully solved.
+
+#objective function value
+get.objective(Network)
+
+#Optimal decision Variable values
+get.variables(Network)
+
+# Optimal values of variable names 
+cbind(lp.colnames, get.variables(Network))
+```
+```
+
