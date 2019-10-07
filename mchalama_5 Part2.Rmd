@@ -1,0 +1,80 @@
+---
+title: "Assignment 5 Part 2"
+author: "ManojKumar Chalamala"
+date: "10/7/2019"
+output: html_document
+---
+```{r}
+library(lpSolveAPI)
+
+
+## Selecting an Investment Portfolio 
+IPF <- make.lp(20, 8)
+
+## Set objective function
+set.objfn(IPF, c(4,6.5,5.9,5.4,5.15,10,8.4,6.25)) 
+
+## set values for the rows
+set.row(IPF, 1, c(40,50,80,60,45,60,30,25), indices = c(1:8) )                  
+set.row(IPF, 2, c(1000), indices = c(1))  
+set.row(IPF, 3, c(1000), indices = c(2))
+set.row(IPF, 4, c(1000), indices = c(3))
+set.row(IPF, 5, c(1000), indices = c(4))
+set.row(IPF, 6, c(1000), indices = c(5))
+set.row(IPF, 7, c(1000), indices = c(6))
+set.row(IPF, 8, c(1000), indices = c(7))
+set.row(IPF, 9, c(1000), indices = c(8))
+set.row(IPF, 10, c(40), indices = c(1))
+set.row(IPF, 11, c(50), indices = c(2))
+set.row(IPF, 12, c(80), indices = c(3))
+set.row(IPF, 13, c(60), indices = c(4))
+set.row(IPF, 14, c(45), indices = c(5))
+set.row(IPF, 15, c(60), indices = c(6))
+set.row(IPF, 16, c(30), indices = c(7))
+set.row(IPF, 17, c(25), indices = c(8))
+set.row(IPF, 18, c(40,50,80), indices = c(1,2,3))
+set.row(IPF, 19, c(60,45,60), indices = c(4,5,6))
+set.row(IPF, 20, c(30,25), indices = c(7,8))
+
+ 
+
+
+## set Right hand side
+rhs <- c(2500000, 0, 0, 0, 0, 0, 0, 0, 0, 100000, 100000, 100000, 100000, 100000, 100000, 100000, 100000, 500000, 1000000, 1000000)
+set.rhs(IPF, rhs)
+
+## set constraints type
+set.constr.type(IPF, rep("<=", 1), constraints = 1)
+set.constr.type(IPF, rep(">=", 16), constraints = 2:17)
+set.constr.type(IPF, rep("<=", 3), constraints = 18:20)
+
+
+# finally, name the decision variables (column) and constraints (rows)
+lp.colnames <- c("S1","S2","S3","H1","H2","H3","C1","C2") 
+lp.rownames <- c("Row1", "Row2", "Row3", "Row4", "Row5", "Row6","Row7", "Row8", "Row9",  "Row10",  "Row11",  "Row12", "Row13", "Row14","Row15", "Row16", "Row17",  "Row18",  "Row19",  "Row20")
+dimnames(IPF) <- list(lp.rownames, lp.colnames)
+
+#Set Max Condition
+lp.control(IPF, sense="max")
+
+## Now set all variables type to be Integer
+set.type(IPF, 1:8, type = "integer")
+
+## Now solve the IP problem
+solve(IPF)
+# --> A return value of 0 indicates that the model was successfully solved.
+
+#objective function value
+get.objective(IPF)
+
+#Optimal decision Variable values
+get.variables(IPF)
+
+# Optimal values of variable names 
+cbind(lp.colnames, get.variables(IPF))
+```
+```
+
+
+```
+
